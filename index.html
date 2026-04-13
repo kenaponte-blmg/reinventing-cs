@@ -1,0 +1,466 @@
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-mid: #94CF35;
+    --green-dark: #3F9107;
+    --black: #000000;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .journey-wrap { font-family: 'Roboto Condensed', sans-serif; padding: 0 0 2rem; }
+  .phase-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .phase-btn {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .phase-btn.active {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: #fff;
+  }
+  .phase-btn:hover:not(.active) {
+    border-color: var(--green-mid);
+    color: var(--color-text-primary);
+  }
+  .phase-panel { display: none; }
+  .phase-panel.active { display: block; }
+  .phase-header { margin-bottom: 1.25rem; }
+  .phase-label {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    margin-bottom: 4px;
+  }
+  .phase-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .phase-desc {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    max-width: 620px;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .signal-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .signal-card:hover { border-color: var(--color-border-secondary); }
+  .card-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .card-icon.green { background: rgba(148,207,53,0.15); }
+  .card-icon.dark { background: rgba(63,145,7,0.12); }
+  .card-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+  }
+  .card-body {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+  }
+  .impact-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.25rem;
+  }
+  .impact-pill {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .impact-pill.green { background: rgba(148,207,53,0.18); color: var(--green-dark); }
+  .impact-pill.outline { background: transparent; border: 1px solid var(--color-border-secondary); color: var(--color-text-secondary); }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1.25rem 0; }
+  .human-vs {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.25rem;
+  }
+  .hvs-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-bottom: 10px;
+  }
+  .hvs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .hvs-col-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hvs-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .hvs-dot.human { background: #888; }
+  .hvs-dot.ai { background: var(--green-mid); }
+  .hvs-item {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--color-text-secondary);
+    padding: 4px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    line-height: 1.4;
+  }
+  .hvs-item:last-child { border-bottom: none; }
+  .timeline-bar {
+    display: flex; gap: 0; margin-bottom: 1.5rem; border-radius: 8px; overflow: hidden; height: 6px;
+  }
+  .tbar-seg { height: 100%; transition: flex 0.4s ease; }
+  .tbar-seg.s1 { background: #94CF35; }
+  .tbar-seg.s2 { background: #3F9107; }
+  .tbar-seg.s3 { background: #2d6a05; }
+  .tbar-seg.s4 { background: #1a3f03; }
+  .tbar-seg.s5 { background: #0d2001; }
+  .phase-selector-wrap { position: relative; }
+</style>
+
+<div class="journey-wrap">
+  <h2 class="sr-only">AI-powered post-purchase customer journey for Bloomerang SaaS customers</h2>
+
+  <div class="timeline-bar">
+    <div class="tbar-seg s1" style="flex:1" id="bar0"></div>
+    <div class="tbar-seg s2" style="flex:1" id="bar1"></div>
+    <div class="tbar-seg s3" style="flex:1" id="bar2"></div>
+    <div class="tbar-seg s4" style="flex:1" id="bar3"></div>
+    <div class="tbar-seg s5" style="flex:1" id="bar4"></div>
+  </div>
+
+  <div class="phase-nav" id="phaseNav">
+    <button class="phase-btn active" onclick="showPhase(0)">01 — Onboarding</button>
+    <button class="phase-btn" onclick="showPhase(1)">02 — Activation</button>
+    <button class="phase-btn" onclick="showPhase(2)">03 — Ongoing success</button>
+    <button class="phase-btn" onclick="showPhase(3)">04 — Renewal & expansion</button>
+    <button class="phase-btn" onclick="showPhase(4)">05 — Advocacy</button>
+  </div>
+
+  <!-- PHASE 0: Onboarding -->
+  <div class="phase-panel active" id="phase0">
+    <div class="phase-header">
+      <div class="phase-label">Phase one — Day zero to 14</div>
+      <div class="phase-title">Onboarding that reads your mind before you ask</div>
+      <div class="phase-desc">The moment a contract is signed, the AI engine activates. No welcome call scheduled. No "your CSM will reach out soon" email. Instead, the platform already knows who you are, what you bought, and what success looks like for you — and it starts building your environment.</div>
+    </div>
+    <div class="cards-grid">
+      <div class="signal-card">
+        <div class="card-icon green">&#9711;</div>
+        <div class="card-title">Intelligent environment setup</div>
+        <div class="card-body">AI ingests your CRM import, maps your data schema, and auto-configures the Bloomerang CRM to match your nonprofit's structure — fund types, campaign tags, and constituent segments — before you log in the first time.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon green">&#9654;</div>
+        <div class="card-title">Personalized onboarding path</div>
+        <div class="card-body">Based on org size, sector, and role detected at signup, the system generates a unique 14-day activation plan. A food bank gets different milestones than a university foundation. No generic checklist.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9650;</div>
+        <div class="card-title">Contextual in-app guidance</div>
+        <div class="card-body">As you navigate, an AI layer surfaces exactly the right tip at the right moment — not a product tour, but a reactive guide that tracks your cursor intent, hesitation, and navigation history.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9632;</div>
+        <div class="card-title">Async AI Q&A — always on</div>
+        <div class="card-body">Slack-style messaging with an AI that has full context of your account. Asks "What's taking you the longest right now?" and responds with tailored walkthroughs, not links to help docs.</div>
+      </div>
+    </div>
+    <div class="impact-row">
+      <span class="impact-pill green">Time-to-first-value: hours, not weeks</span>
+      <span class="impact-pill green">Zero CSM hours consumed</span>
+      <span class="impact-pill outline">Replaces: kickoff calls, data migration support, onboarding emails</span>
+    </div>
+    <div class="divider"></div>
+    <div class="human-vs">
+      <div class="hvs-title">What changes</div>
+      <div class="hvs-grid">
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot human"></span> Old model (human-led)</div>
+          <div class="hvs-item">CSM schedules 3-week kickoff cadence</div>
+          <div class="hvs-item">Manual data migration with spreadsheets</div>
+          <div class="hvs-item">Generic welcome email sequence</div>
+          <div class="hvs-item">Support tickets for basic setup questions</div>
+        </div>
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot ai"></span> AI-native model</div>
+          <div class="hvs-item">Environment ready before first login</div>
+          <div class="hvs-item">AI maps and loads your data automatically</div>
+          <div class="hvs-item">Personalized path built from your profile</div>
+          <div class="hvs-item">Contextual in-app AI answers instantly</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 1: Activation -->
+  <div class="phase-panel" id="phase1">
+    <div class="phase-header">
+      <div class="phase-label">Phase two — Day 15 to 60</div>
+      <div class="phase-title">Activation driven by signals, not check-in calls</div>
+      <div class="phase-desc">Most SaaS churn starts here — the gap between "set up" and "actually using it." AI eliminates this by watching behavioral signals in real time, predicting which customers are about to disengage, and intervening before they even notice they're stuck.</div>
+    </div>
+    <div class="cards-grid">
+      <div class="signal-card">
+        <div class="card-icon green">&#9711;</div>
+        <div class="card-title">Behavioral health scoring</div>
+        <div class="card-body">Every session generates signals — features touched, records created, time spent, paths abandoned. AI builds a live activation health score and compares it against cohorts of successful customers at the same stage.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon green">&#9654;</div>
+        <div class="card-title">Proactive friction removal</div>
+        <div class="card-body">When the AI detects a user stuck on the same screen three sessions in a row, it doesn't wait for a ticket. It surfaces a targeted nudge, a short video, or a pre-filled example — before frustration turns into churn intent.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9650;</div>
+        <div class="card-title">Milestone-triggered celebrations</div>
+        <div class="card-body">First gift processed, first campaign launched, first report exported — AI detects these moments and delivers personalized milestone messages that reinforce value and build habit loops without a human in the loop.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9632;</div>
+        <div class="card-title">Gap analysis & next-best action</div>
+        <div class="card-body">AI compares your feature usage to customers with similar profiles who achieved their outcomes. It identifies the two or three unused features most correlated with success for your org type and surfaces them at the right moment.</div>
+      </div>
+    </div>
+    <div class="impact-row">
+      <span class="impact-pill green">30-day activation rate: up significantly</span>
+      <span class="impact-pill green">Fewer "check-in" calls needed</span>
+      <span class="impact-pill outline">Replaces: QBR prep, manual health scoring, activation emails</span>
+    </div>
+    <div class="divider"></div>
+    <div class="human-vs">
+      <div class="hvs-title">What changes</div>
+      <div class="hvs-grid">
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot human"></span> Old model (human-led)</div>
+          <div class="hvs-item">CSM manually logs into accounts to check usage</div>
+          <div class="hvs-item">Customers email in when stuck</div>
+          <div class="hvs-item">Quarterly reviews months after the problem</div>
+          <div class="hvs-item">Health scoring is manual and subjective</div>
+        </div>
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot ai"></span> AI-native model</div>
+          <div class="hvs-item">Real-time behavioral signal monitoring</div>
+          <div class="hvs-item">AI intervenes before a ticket gets filed</div>
+          <div class="hvs-item">Micro-reviews triggered by actual events</div>
+          <div class="hvs-item">Objective ML-based health scoring at scale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: Ongoing success -->
+  <div class="phase-panel" id="phase2">
+    <div class="phase-header">
+      <div class="phase-label">Phase three — Month two onward</div>
+      <div class="phase-title">An always-on success layer that scales infinitely</div>
+      <div class="phase-desc">Traditional customer success breaks at scale — you can't afford a 1:1 CSM model for every customer. AI flips this: every customer gets a deeply personalized success experience, and the cost per customer approaches zero as you grow.</div>
+    </div>
+    <div class="cards-grid">
+      <div class="signal-card">
+        <div class="card-icon green">&#9711;</div>
+        <div class="card-title">Automated success plans</div>
+        <div class="card-body">AI generates and executes a rolling 90-day success plan for every account — setting outcome milestones tied to the customer's stated goals, tracking progress, and adjusting the plan when usage patterns shift.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon green">&#9654;</div>
+        <div class="card-title">AI-powered support resolution</div>
+        <div class="card-body">An AI support agent handles the vast majority of inquiries — understanding intent, pulling account context, and resolving issues without a ticket queue. Complex edge cases get flagged for human review with full context attached.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9650;</div>
+        <div class="card-title">Proactive insight delivery</div>
+        <div class="card-body">Monthly AI-generated "Your Bloomerang Impact Report" shows each customer their data trends, fundraising benchmarks against peer nonprofits, and three specific actions to improve performance — all automatically personalized.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9632;</div>
+        <div class="card-title">Churn prediction & preemption</div>
+        <div class="card-body">When signals converge — declining logins, support ticket spikes, low NPS, contract anniversary approaching — the AI triggers a targeted retention sequence: a compelling ROI summary, a personalized "here's what you'd lose" message, and an upgrade offer timed to the moment of maximum receptivity.</div>
+      </div>
+    </div>
+    <div class="impact-row">
+      <span class="impact-pill green">Support ticket deflection at scale</span>
+      <span class="impact-pill green">Net Revenue Retention improvement</span>
+      <span class="impact-pill outline">Replaces: CSM check-ins, manual QBRs, reactive support</span>
+    </div>
+    <div class="divider"></div>
+    <div class="human-vs">
+      <div class="hvs-title">What changes</div>
+      <div class="hvs-grid">
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot human"></span> Old model (human-led)</div>
+          <div class="hvs-item">CSM:customer ratio limits scale</div>
+          <div class="hvs-item">Reactive support — wait for the ticket</div>
+          <div class="hvs-item">QBRs are generic slide decks</div>
+          <div class="hvs-item">Churn noticed after it's too late</div>
+        </div>
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot ai"></span> AI-native model</div>
+          <div class="hvs-item">Infinite scale — 1:1 at any volume</div>
+          <div class="hvs-item">Proactive AI resolves before escalation</div>
+          <div class="hvs-item">Personalized impact reports auto-generated</div>
+          <div class="hvs-item">Churn signals caught and acted on early</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: Renewal & expansion -->
+  <div class="phase-panel" id="phase3">
+    <div class="phase-header">
+      <div class="phase-label">Phase four — 60 to 90 days pre-renewal</div>
+      <div class="phase-title">Renewals and expansions that close themselves</div>
+      <div class="phase-desc">The renewal motion traditionally requires your most expensive humans at exactly the moment customers are most likely to evaluate competitors. AI takes over the entire pre-renewal sequence — building the case, surfacing the ROI, and identifying expansion signals — without a single rep dial.</div>
+    </div>
+    <div class="cards-grid">
+      <div class="signal-card">
+        <div class="card-icon green">&#9711;</div>
+        <div class="card-title">AI-generated ROI summaries</div>
+        <div class="card-body">Ninety days before renewal, every customer receives a deeply personalized ROI document: gifts processed, time saved, retention rates improved — compared against their baseline at signup. Numbers they couldn't calculate themselves.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon green">&#9654;</div>
+        <div class="card-title">Expansion signal detection</div>
+        <div class="card-body">AI monitors for signals that indicate readiness for an upgrade: new staff added, increased donation volume, new campaign types attempted. It identifies the right moment and the right product tier, then triggers a targeted upgrade sequence — no AE required.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9650;</div>
+        <div class="card-title">Automated multi-stakeholder outreach</div>
+        <div class="card-body">AI identifies all stakeholders at the account (ED, development director, IT) and delivers role-specific renewal messaging simultaneously — the ED gets the impact story, the dev director gets the feature roadmap, finance gets the cost-per-dollar-raised analysis.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9632;</div>
+        <div class="card-title">Price negotiation intelligence</div>
+        <div class="card-body">When a customer signals price sensitivity, AI calculates their usage-based value, identifies the minimum discount needed to retain them, and routes an offer — not a human negotiation, but a precision-targeted retention lever.</div>
+      </div>
+    </div>
+    <div class="impact-row">
+      <span class="impact-pill green">Renewal rates defended without AE overhead</span>
+      <span class="impact-pill green">Expansion revenue identified earlier</span>
+      <span class="impact-pill outline">Replaces: renewal calls, EBRs, manual upsell outreach</span>
+    </div>
+    <div class="divider"></div>
+    <div class="human-vs">
+      <div class="hvs-title">What changes</div>
+      <div class="hvs-grid">
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot human"></span> Old model (human-led)</div>
+          <div class="hvs-item">AE/CSM owns the renewal conversation</div>
+          <div class="hvs-item">Expansion requires a discovery call</div>
+          <div class="hvs-item">Multi-stakeholder outreach is inconsistent</div>
+          <div class="hvs-item">Discount decisions are gut-feel</div>
+        </div>
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot ai"></span> AI-native model</div>
+          <div class="hvs-item">AI builds the case — no call needed</div>
+          <div class="hvs-item">Expansion triggered by usage signals</div>
+          <div class="hvs-item">Role-specific messaging at scale</div>
+          <div class="hvs-item">Data-driven retention offers, not guesses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4: Advocacy -->
+  <div class="phase-panel" id="phase4">
+    <div class="phase-header">
+      <div class="phase-label">Phase five — Ongoing</div>
+      <div class="phase-title">Turning customers into advocates — automatically</div>
+      <div class="phase-desc">The best growth engine is a customer who sells for you. AI identifies the right customers at the right moments — peak satisfaction signals — and activates them as advocates, referral sources, and community contributors without a single manual ask.</div>
+    </div>
+    <div class="cards-grid">
+      <div class="signal-card">
+        <div class="card-icon green">&#9711;</div>
+        <div class="card-title">Advocacy moment detection</div>
+        <div class="card-body">AI watches for peak-value moments — a record fundraising month, a new integration milestone, a glowing in-app rating — and triggers an immediate, personalized ask: a G2 review, a case study invitation, or a referral request. Timing matters more than the ask itself.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon green">&#9654;</div>
+        <div class="card-title">AI-drafted case study content</div>
+        <div class="card-body">When a customer agrees to a case study, AI drafts it from their account data — outcomes, usage patterns, before/after metrics — and sends it for approval. What used to take a marketing writer weeks takes minutes.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9650;</div>
+        <div class="card-title">Referral loop automation</div>
+        <div class="card-body">AI manages the full referral lifecycle: identifying advocates, personalizing the referral ask, tracking referral activity, and delivering incentives automatically. A customer who refers a colleague never waits for a human to follow up.</div>
+      </div>
+      <div class="signal-card">
+        <div class="card-icon dark">&#9632;</div>
+        <div class="card-title">Community contribution nudges</div>
+        <div class="card-body">AI identifies customers who would benefit from — and contribute to — the Bloomerang nonprofit community: peer benchmarking groups, product advisory panels, and user-generated content. It makes the right ask to the right person at the right time.</div>
+      </div>
+    </div>
+    <div class="impact-row">
+      <span class="impact-pill green">Review volume increased without manual outreach</span>
+      <span class="impact-pill green">Referral pipeline generated at scale</span>
+      <span class="impact-pill outline">Replaces: customer marketing outreach, manual case study interviews</span>
+    </div>
+    <div class="divider"></div>
+    <div class="human-vs">
+      <div class="hvs-title">What changes</div>
+      <div class="hvs-grid">
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot human"></span> Old model (human-led)</div>
+          <div class="hvs-item">Marketing manually identifies advocates</div>
+          <div class="hvs-item">Case studies take weeks to produce</div>
+          <div class="hvs-item">Referral programs are opt-in and passive</div>
+          <div class="hvs-item">Community invites are batch-blasted</div>
+        </div>
+        <div>
+          <div class="hvs-col-label"><span class="hvs-dot ai"></span> AI-native model</div>
+          <div class="hvs-item">AI detects peak satisfaction in real time</div>
+          <div class="hvs-item">AI drafts case studies from account data</div>
+          <div class="hvs-item">Referral asks timed to peak delight</div>
+          <div class="hvs-item">Personalized community asks per profile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPhase(i) {
+  document.querySelectorAll('.phase-panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.phase-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+}
+</script>
